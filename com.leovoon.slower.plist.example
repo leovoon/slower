@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.leovoon.slower</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/ABS/PATH/TO/REPO/slower.sh</string>
+    <string>run</string>
+    <string>-t</string>
+    <string>60</string>
+  </array>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>WorkingDirectory</key>
+  <string>/ABS/PATH/TO/REPO</string>
+  <key>StandardOutPath</key>
+  <string>/Users/YOUR_USER/Library/Logs/com.leovoon.slower.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/YOUR_USER/Library/Logs/com.leovoon.slower.err.log</string>
+</dict>
+</plist>
