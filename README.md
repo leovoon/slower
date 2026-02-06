@@ -7,7 +7,7 @@ Slower is a tiny background reminder that nudges you to stand up and walk every 
 - macOS (uses `osascript` for notifications and `say` for voice)
 - `bash` (invoked via `/usr/bin/env bash`)
 
-If `osascript` or `say` is not available, Walker will still run but will skip that capability.
+If `osascript` or `say` is not available, Slower will still run but will skip that capability.
 
 ## Usage
 
@@ -21,6 +21,7 @@ slower stop
 slower stop --all
 slower uninstall
 slower status
+slower status --all
 slower --help
 slower voices
 slower sessions
@@ -47,6 +48,7 @@ Launchd is optional and only needed for auto-start at login.
 - `-s`, `--sound` - notification sound name (use `none` for silent)
 - `-v`, `--voice` - voice name for `say` (use `none` to disable speech)
 - `--log [path]` - enable logging (default: `~/.slower/logs/<name>.log`)
+- `-a`, `--all` - apply to all sessions with `stop` or `status`
 
 ## Behavior Notes
 

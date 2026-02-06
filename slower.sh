@@ -460,6 +460,33 @@ stop_all_sessions() {
     fi
 }
 
+status_all_sessions() {
+    local found=0
+    if [[ -d "$BASE_DIR" ]]; then
+        local pidfile
+        for pidfile in "$BASE_DIR"/*.pid; do
+            [[ -e "$pidfile" ]] || continue
+            local name
+            name="$(basename "$pidfile" .pid)"
+            SESSION="$name"
+            set_session_paths
+            if is_running; then
+                echo "Slower is running (session '$SESSION', PID $PID)."
+                status_remaining
+            else
+                if [[ -f "$STATEFILE" ]]; then
+                    rm -f "$STATEFILE"
+                fi
+                echo "Slower is not running (session '$SESSION')."
+            fi
+            found=1
+        done
+    fi
+    if [[ "$found" -eq 0 ]]; then
+        echo "No sessions found."
+    fi
+}
+
 usage() {
     echo "Usage: $SCRIPT_NAME [start|stop|status|run|uninstall|voices|sessions] [options]"
     echo "  -t, --time           Set interval in minutes (default: 60)"
@@ -471,7 +498,7 @@ usage() {
     echo "  -v, --voice          Voice name for say (use 'none' to disable speech)"
     echo "      --log [path]     Enable logging (default: ~/.slower/logs/<name>.log)"
     echo "      --purge          With uninstall: remove default LaunchAgent plist and logs"
-    echo "  -a, --all            With stop: stop all sessions"
+    echo "  -a, --all            With stop/status: apply to all sessions"
     echo "  voices               List available system voices"
     echo "  sessions             List known sessions and their status"
     exit 1
@@ -646,10 +673,33 @@ case "$COMMAND" in
         list_sessions
         ;;
     status)
+        if [[ "$STOP_ALL" -eq 1 ]]; then
+            status_all_sessions
+            exit 0
+        fi
         if is_running; then
             echo "Slower is running (session '$SESSION', PID $PID)."
             status_remaining
         else
+            local others=0
+            if [[ "$SESSION" == "default" && -d "$BASE_DIR" ]]; then
+                local pidfile
+                for pidfile in "$BASE_DIR"/*.pid; do
+                    [[ -e "$pidfile" ]] || continue
+                    local name
+                    name="$(basename "$pidfile" .pid)"
+                    if [[ "$name" != "default" ]]; then
+                        others=1
+                        break
+                    fi
+                done
+            fi
+
+            if [[ "$others" -eq 1 ]]; then
+                status_all_sessions
+                exit 0
+            fi
+
             if [[ -f "$STATEFILE" ]]; then
                 rm -f "$STATEFILE"
             fi
