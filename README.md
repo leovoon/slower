@@ -1,5 +1,9 @@
 # Slower
 
+<p align="center">
+  <img src="slower.gif" alt="Slower demo" />
+</p>
+
 Slower is a tiny background reminder that delivers any custom message on a schedule.
 
 ## Requirements
