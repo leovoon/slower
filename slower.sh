@@ -681,12 +681,10 @@ case "$COMMAND" in
             echo "Slower is running (session '$SESSION', PID $PID)."
             status_remaining
         else
-            local others=0
+            others=0
             if [[ "$SESSION" == "default" && -d "$BASE_DIR" ]]; then
-                local pidfile
                 for pidfile in "$BASE_DIR"/*.pid; do
                     [[ -e "$pidfile" ]] || continue
-                    local name
                     name="$(basename "$pidfile" .pid)"
                     if [[ "$name" != "default" ]]; then
                         others=1
