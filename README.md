@@ -9,32 +9,21 @@ Slower is a tiny background reminder that nudges you to stand up and walk every 
 
 If `osascript` or `say` is not available, Walker will still run but will skip that capability.
 
-## Install
-
-1. Make it executable:
-
-```bash
-chmod +x slower.sh
-chmod +x launchd-setup.sh
-```
-
-2. Run it from the project folder, or add it to your PATH.
-
 ## Usage
 
 ```bash
-./slower.sh start
-./slower.sh start -t 45
-./slower.sh start -t 45 -m "Stand up and stretch" -s "Ping" -v "Samantha"
-./slower.sh start --name work -t 45 --quiet 22:00-08:00 --log
-./slower.sh run -t 45
-./slower.sh stop
-./slower.sh stop --all
-./slower.sh uninstall
-./slower.sh status
-./slower.sh --help
-./slower.sh voices
-./slower.sh sessions
+slower start
+slower start -t 45
+slower start -t 45 -m "Stand up and stretch" -s "Ping" -v "Samantha"
+slower start --name work -t 45 --quiet 22:00-08:00 --log
+slower run -t 45
+slower stop
+slower stop --all
+slower uninstall
+slower status
+slower --help
+slower voices
+slower sessions
 ```
 
 ## Quick Start (Programmer Default)
@@ -73,8 +62,8 @@ Use `--name` to run multiple independent sessions. Each session has its own PID 
 Example:
 
 ```bash
-./slower.sh start --name work -t 45
-./slower.sh status --name work
+slower start --name work -t 45
+slower status --name work
 ```
 
 ## Quiet Hours
@@ -90,26 +79,26 @@ Use `--log` to write timestamped events to `~/.slower/logs/<name>.log`, or `--lo
 If you are not using launchd and just ran the script manually:
 
 ```bash
-./slower.sh uninstall
+slower uninstall
 ```
 
 To also remove default launchd plist and log files (including `~/.slower/logs/<name>.log` if present):
 
 ```bash
-./slower.sh uninstall --purge
+slower uninstall --purge
 ```
 
 To uninstall a specific session:
 
 ```bash
-./slower.sh uninstall --name work
-./slower.sh uninstall --name work --purge
+slower uninstall --name work
+slower uninstall --name work --purge
 ```
 
 To stop all sessions:
 
 ```bash
-./slower.sh stop --all
+slower stop --all
 ```
 
 If you copied or symlinked the script into your PATH, remove that file. Examples:
@@ -124,26 +113,26 @@ rm -f /usr/local/bin/slower
 Quick install (recommended):
 
 ```bash
-./launchd-setup.sh install -t 60
+launchd-setup.sh install -t 60
 ```
 
 With custom message, sound, and voice:
 
 ```bash
-./launchd-setup.sh install -t 45 -m "Stand up and stretch" -s "Ping" -v "Samantha"
+launchd-setup.sh install -t 45 -m "Stand up and stretch" -s "Ping" -v "Samantha"
 ```
 
 With session, quiet hours, and logging:
 
 ```bash
-./launchd-setup.sh install --name work --quiet 22:00-08:00 --log
+launchd-setup.sh install --name work --quiet 22:00-08:00 --log
 ```
 
 Check status and uninstall:
 
 ```bash
-./launchd-setup.sh status
-./launchd-setup.sh uninstall
+launchd-setup.sh status
+launchd-setup.sh uninstall
 ```
 
 The helper generates and installs a plist at `~/Library/LaunchAgents/com.leovoon.slower.plist` for the default session. It prefers the `slower` binary in your PATH (e.g., Homebrew) and falls back to the local `slower.sh` next to `launchd-setup.sh`.
