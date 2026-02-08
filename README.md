@@ -13,6 +13,13 @@ Slower is a tiny background reminder that delivers any custom message on a sched
 
 If `osascript` or `say` is not available, Slower will still run but will skip that capability.
 
+## Install
+
+```bash
+brew tap leovoon/tap
+brew install slower
+```
+
 ## Usage
 
 ### Quick Start
