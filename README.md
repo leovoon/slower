@@ -19,6 +19,21 @@ Slower uses system commands for platform integration:
 
 If `osascript` or `say` is unavailable, Slower skips that capability.
 
+## Homebrew
+
+New install:
+
+```bash
+brew install leovoon/tap/slower
+```
+
+Update an existing install:
+
+```bash
+brew update
+brew upgrade leovoon/tap/slower
+```
+
 ## Build
 
 ```bash
