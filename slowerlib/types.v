@@ -1,7 +1,7 @@
 module slowerlib
 
 pub const app_name = 'Slower'
-pub const version = '2.0.0'
+pub const version = '2.0.1'
 pub const default_interval_minutes = 60
 pub const default_message = 'Time to walk! Get up and move for 5 minutes.'
 pub const default_say_message = 'Time to walk'

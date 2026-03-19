@@ -3,9 +3,14 @@ module slowerlib
 import cli
 
 pub fn run_cli(args []string) ! {
+	normalized := normalize_public_args(args)
+	if normalized.len > 1 && normalized[1] == '_worker' {
+		run_internal_worker(normalized[2..])!
+		return
+	}
 	mut app := build_app()
 	app.setup()
-	app.parse(args)
+	app.parse(normalized)
 }
 
 fn build_app() cli.Command {
