@@ -4,20 +4,49 @@
   <img src="slower.gif" alt="Slower demo" />
 </p>
 
-Slower is a tiny background reminder that delivers any custom message on a schedule.
+Slower is a macOS reminder CLI written in V. It can run in the foreground, start a detached background worker, or install a `launchd` agent for login-managed reminders.
 
 ## Requirements
 
-- macOS (uses `osascript` for notifications and `say` for voice)
-- `bash` (invoked via `/usr/bin/env bash`)
+- macOS
+- [V](https://docs.vlang.io/)
 
-If `osascript` or `say` is not available, Slower will still run but will skip that capability.
+Slower uses system commands for platform integration:
 
-## Install
+- `osascript` for notifications
+- `say` for speech
+- `launchctl` for `launchd` management
+
+If `osascript` or `say` is unavailable, Slower skips that capability.
+
+## Build
 
 ```bash
-brew tap leovoon/tap
-brew install slower
+make build
+```
+
+If `v` is not on your `PATH`, pass it explicitly:
+
+```bash
+make V=/path/to/v build
+```
+
+Or directly:
+
+```bash
+v -o slower ./cmd/slower/main.v
+```
+
+## Test
+
+```bash
+make test
+```
+
+Or directly:
+
+```bash
+v test .
 ```
 
 ## Usage
@@ -25,93 +54,111 @@ brew install slower
 ### Quick Start
 
 ```bash
-slower start
-slower status
+./slower start --interval 45 --message "Stand up and stretch"
+./slower status
+./slower stop
 ```
 
-### Examples
+### Commands
 
 ```bash
-slower start -t 45
-slower start -t 45 -m "Stand up and stretch" -s "Ping" -v "Samantha"
-slower start --name work -t 45 --quiet 22:00-08:00 --log
-slower run -t 45
-slower stop
-slower stop --all
-slower uninstall
-slower status
-slower status --all
-slower --help
-slower voices
-slower sessions
+./slower run
+./slower start
+./slower stop
+./slower status
+./slower list
+./slower voices
+./slower launchd install
+./slower launchd uninstall
 ```
 
-### Options
+### Shared Flags
 
-- `-t`, `--time` - interval in minutes (default: 60)
-- `-n`, `--name` - session name (default: `default`)
-- `--quiet` - quiet hours in `HH:MM-HH:MM` (no notifications)
-- `-m`, `--message` - notification and spoken message
-- `--say-message` - spoken message only (overrides `--message` for voice)
-- `-s`, `--sound` - notification sound name (use `none` for silent)
-- `-v`, `--voice` - voice name for `say` (use `none` to disable speech)
-- `--log [path]` - enable logging (default: `~/.slower/logs/<name>.log`)
-- `-a`, `--all` - apply to all sessions with `stop` or `status`
+- `--session`, `-n` - session name (default: `default`)
+- `--interval`, `-i` - interval in minutes (default: `60`)
+- `--quiet`, `-q` - quiet hours in `HH:MM-HH:MM`
+- `--message`, `-m` - notification message
+- `--say-message` - spoken message only
+- `--sound`, `-s` - notification sound name, or `none`
+- `--voice`, `-v` - voice name for `say`, or `none`
+- `--log` - enable logging to `~/.slower/logs/<session>.log`
+- `--log /path/to/file.log` - compatibility form for a custom log path
+- `--log --log-path /path/to/file.log` - explicit custom log path form
 
-## Behavior Notes
-
-- Stores session PID files in `~/.slower/<name>.pid` and cleans up stale PID files when detected.
-- Prevents accidental PID reuse by recording the process start time.
-- Set `--sound none` for silent notifications and `--voice none` to disable speech.
-- `slower status` shows the remaining time until the next notification when available.
-
-## Sessions
-
-Use `--name` to run multiple independent sessions. Each session has its own PID and state files under `~/.slower/` (for example `~/.slower/work.pid` and `~/.slower/work.state`).
-
-Example:
+### Detached Sessions
 
 ```bash
-slower start --name work -t 45
-slower status --name work
+./slower start --session work --interval 45 --quiet 22:00-08:00 --log
+./slower status --session work
+./slower stop --session work
 ```
 
-## Quiet Hours
+Use `--all` with `stop` or `status` to act on every known session.
 
-Use `--quiet HH:MM-HH:MM` to suppress notifications during a time window. Cross-midnight ranges like `22:00-08:00` are supported.
-
-## Logging
-
-Use `--log` to write timestamped events to `~/.slower/logs/<name>.log`, or `--log /path/to/file.log` to choose a custom location.
-
-## Uninstall
-
-If you ran the binary manually:
+### Foreground Mode
 
 ```bash
-slower uninstall
+./slower run --session focus --interval 25 --sound none --voice none
 ```
 
-To uninstall a specific session:
+### launchd
+
+Install a login-managed agent:
 
 ```bash
-slower uninstall --name work
-slower uninstall --name work --purge
+./slower launchd install --session work --interval 45 --message "Stretch"
 ```
 
-To stop all sessions:
+Preview the generated plist without installing it:
 
 ```bash
-slower stop --all
+./slower launchd install --dry-run --session work --interval 45
 ```
 
-If you copied or symlinked the binary into your PATH, remove that file. Examples:
+Remove the agent:
 
 ```bash
-rm -f ~/bin/slower
-rm -f /usr/local/bin/slower
+./slower launchd uninstall --session work
+./slower launchd uninstall --session work --purge
+```
+
+`stop` unloads a running `launchd` job but keeps the plist on disk. `launchd uninstall` removes the plist.
+
+## Compatibility Aliases
+
+The V rewrite keeps a few old shell-era aliases so existing usage does not break immediately:
+
+- `sessions` maps to `list`
+- top-level `uninstall` maps to `launchd uninstall`
+- `--name` maps to `--session`
+- `--time` and `-t` map to `--interval`
+
+## State Layout
+
+Slower stores runtime state under `~/.slower/`:
+
+- `sessions/<session>.json` - session state
+- `locks/<session>.lock` - single-instance lock
+- `logs/<session>.log` - session event log
+
+LaunchAgents are written to:
+
+- `~/Library/LaunchAgents/com.leovoon.slower[.<session>].plist`
+
+## Development
+
+Format:
+
+```bash
+make fmt
+```
+
+Release build:
+
+```bash
+make release
 ```
 
 ## Credits
 
-This script is a remix of a walker reminder by Mario Zechner (@badlogicgames, [https://x.com/badlogicgames](https://x.com/badlogicgames)). Thanks for the original inspiration.
+This project is inspired by a walker reminder by Mario Zechner (@badlogicgames, [https://x.com/badlogicgames](https://x.com/badlogicgames)).
